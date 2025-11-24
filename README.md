@@ -10,4 +10,4 @@ Install docker container
 
 
 Run bash in docker container
-`docker exec -it ros:rolling-perception-noble bash`
+`docker run -it --rm ros:rolling-perception-noble bash`
