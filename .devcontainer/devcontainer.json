@@ -1,0 +1,11 @@
+{
+    "name": "Final Project ROS",
+    "image": "ros:rolling-perception-noble",
+    "features": {
+    },
+    "extensions": [
+    ],
+    "settings": {
+    },
+    "forwardPorts": [5000]
+  }
