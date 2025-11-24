@@ -1,0 +1,38 @@
+[0.000000] (-) TimerEvent: {}
+[0.001165] (tello) JobQueued: {'identifier': 'tello', 'dependencies': OrderedDict()}
+[0.001306] (tello) JobStarted: {'identifier': 'tello'}
+[0.100510] (-) TimerEvent: {}
+[0.201278] (-) TimerEvent: {}
+[0.270335] (tello) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/tello', 'build', '--build-base', '/workspaces/ARF/build/tello/build', 'install', '--record', '/workspaces/ARF/build/tello/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/workspaces/ARF/src/tello', 'env': {'HOSTNAME': 'c4521c513ff0', 'GIT_ASKPASS': '/vscode/vscode-server/bin/linux-arm64/03c265b1adee71ac88f833e065f7bb956b60550a/extensions/git/dist/askpass.sh', 'SHLVL': '2', 'LD_LIBRARY_PATH': '/opt/ros/rolling/opt/zenoh_cpp_vendor/lib:/opt/ros/rolling/lib/aarch64-linux-gnu:/opt/ros/rolling/lib', 'BROWSER': '/vscode/vscode-server/bin/linux-arm64/03c265b1adee71ac88f833e065f7bb956b60550a/bin/helpers/browser.sh', 'HOME': '/root', 'TERM_PROGRAM_VERSION': '1.105.0', 'VSCODE_IPC_HOOK_CLI': '/tmp/vscode-ipc-f8ff621c-64d5-4cf4-959c-373845202976.sock', 'ROS_PYTHON_VERSION': '3', 'VSCODE_GIT_ASKPASS_MAIN': '/vscode/vscode-server/bin/linux-arm64/03c265b1adee71ac88f833e065f7bb956b60550a/extensions/git/dist/askpass-main.js', 'VSCODE_GIT_ASKPASS_NODE': '/vscode/vscode-server/bin/linux-arm64/03c265b1adee71ac88f833e065f7bb956b60550a/node', 'VSCODE_PYTHON_AUTOACTIVATE_GUARD': '1', 'COLORTERM': 'truecolor', 'REMOTE_CONTAINERS': 'true', 'ROS_DISTRO': 'rolling', 'REMOTE_CONTAINERS_IPC': '/tmp/vscode-remote-containers-ipc-29c0e94f-3b45-4ba6-b599-1b066d590b8e.sock', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/rolling/bin:/vscode/vscode-server/bin/linux-arm64/03c265b1adee71ac88f833e065f7bb956b60550a/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'REMOTE_CONTAINERS_SOCKETS': '["/tmp/vscode-ssh-auth-29c0e94f-3b45-4ba6-b599-1b066d590b8e.sock"]', 'LANG': 'C.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'VSCODE_GIT_IPC_HANDLE': '/tmp/vscode-git-930d57c8c7.sock', 'TERM_PROGRAM': 'vscode', 'SSH_AUTH_SOCK': '/tmp/vscode-ssh-auth-29c0e94f-3b45-4ba6-b599-1b066d590b8e.sock', 'AMENT_PREFIX_PATH': '/opt/ros/rolling', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'VSCODE_GIT_ASKPASS_EXTRA_ARGS': '', 'PWD': '/workspaces/ARF/build/tello', 'LC_ALL': 'C.UTF-8', 'PYTHONPATH': '/workspaces/ARF/build/tello/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspaces/ARF/install/tello/lib/python3.12/site-packages:/opt/ros/rolling/lib/python3.12/site-packages', 'COLCON': '1'}, 'shell': False}
+[0.302297] (-) TimerEvent: {}
+[0.349337] (tello) StdoutLine: {'line': b'running egg_info\n'}
+[0.353292] (tello) StdoutLine: {'line': b'writing ../../build/tello/tello.egg-info/PKG-INFO\n'}
+[0.353784] (tello) StdoutLine: {'line': b'writing dependency_links to ../../build/tello/tello.egg-info/dependency_links.txt\n'}
+[0.354185] (tello) StdoutLine: {'line': b'writing entry points to ../../build/tello/tello.egg-info/entry_points.txt\n'}
+[0.354598] (tello) StdoutLine: {'line': b'writing requirements to ../../build/tello/tello.egg-info/requires.txt\n'}
+[0.354868] (tello) StdoutLine: {'line': b'writing top-level names to ../../build/tello/tello.egg-info/top_level.txt\n'}
+[0.364557] (tello) StdoutLine: {'line': b"reading manifest file '../../build/tello/tello.egg-info/SOURCES.txt'\n"}
+[0.365181] (tello) StdoutLine: {'line': b"writing manifest file '../../build/tello/tello.egg-info/SOURCES.txt'\n"}
+[0.365717] (tello) StdoutLine: {'line': b'running build\n'}
+[0.366132] (tello) StdoutLine: {'line': b'running build_py\n'}
+[0.366425] (tello) StdoutLine: {'line': b'copying tello/tello.py -> /workspaces/ARF/build/tello/build/lib/tello\n'}
+[0.367273] (tello) StdoutLine: {'line': b'running install\n'}
+[0.369753] (tello) StdoutLine: {'line': b'running install_lib\n'}
+[0.374110] (tello) StdoutLine: {'line': b'copying /workspaces/ARF/build/tello/build/lib/tello/tello.py -> /workspaces/ARF/install/tello/lib/python3.12/site-packages/tello\n'}
+[0.375173] (tello) StdoutLine: {'line': b'byte-compiling /workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/tello.py to tello.cpython-312.pyc\n'}
+[0.375870] (tello) StderrLine: {'line': b'  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/tello.py", line 5\n'}
+[0.377346] (tello) StderrLine: {'line': b'    import \n'}
+[0.377538] (tello) StderrLine: {'line': b'           ^\n'}
+[0.377703] (tello) StderrLine: {'line': b'SyntaxError: invalid syntax\n'}
+[0.377842] (tello) StderrLine: {'line': b'\n'}
+[0.377937] (tello) StdoutLine: {'line': b'running install_data\n'}
+[0.378805] (tello) StdoutLine: {'line': b'running install_egg_info\n'}
+[0.381985] (tello) StdoutLine: {'line': b"removing '/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello-0.0.0-py3.12.egg-info' (and everything under it)\n"}
+[0.383335] (tello) StdoutLine: {'line': b'Copying ../../build/tello/tello.egg-info to /workspaces/ARF/install/tello/lib/python3.12/site-packages/tello-0.0.0-py3.12.egg-info\n'}
+[0.387594] (tello) StdoutLine: {'line': b'running install_scripts\n'}
+[0.403264] (-) TimerEvent: {}
+[0.426495] (tello) StdoutLine: {'line': b'Installing tello_bringup script to /workspaces/ARF/install/tello/lib/tello\n'}
+[0.427836] (tello) StdoutLine: {'line': b"writing list of installed files to '/workspaces/ARF/build/tello/install.log'\n"}
+[0.445450] (tello) CommandEnded: {'returncode': 0}
+[0.453606] (tello) JobEnded: {'identifier': 'tello', 'rc': 0}
+[0.454775] (-) EventReactorShutdown: {}

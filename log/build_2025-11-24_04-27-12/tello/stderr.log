@@ -1,0 +1,5 @@
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/tello.py", line 5
+    import 
+           ^
+SyntaxError: invalid syntax
+

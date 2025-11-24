@@ -1,0 +1,21 @@
+[0.249s] Invoking command in '/workspaces/ARF/src/tello': PYTHONPATH=/workspaces/ARF/build/tello/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspaces/ARF/install/tello/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/tello build --build-base /workspaces/ARF/build/tello/build install --record /workspaces/ARF/build/tello/install.log --single-version-externally-managed install_data
+[0.325s] running egg_info
+[0.330s] writing ../../build/tello/tello.egg-info/PKG-INFO
+[0.330s] writing dependency_links to ../../build/tello/tello.egg-info/dependency_links.txt
+[0.330s] writing entry points to ../../build/tello/tello.egg-info/entry_points.txt
+[0.331s] writing requirements to ../../build/tello/tello.egg-info/requires.txt
+[0.331s] writing top-level names to ../../build/tello/tello.egg-info/top_level.txt
+[0.340s] reading manifest file '../../build/tello/tello.egg-info/SOURCES.txt'
+[0.341s] writing manifest file '../../build/tello/tello.egg-info/SOURCES.txt'
+[0.343s] running build
+[0.345s] running build_py
+[0.348s] running install
+[0.348s] running install_lib
+[0.352s] running install_data
+[0.352s] running install_egg_info
+[0.355s] removing '/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello-0.0.0-py3.12.egg-info' (and everything under it)
+[0.356s] Copying ../../build/tello/tello.egg-info to /workspaces/ARF/install/tello/lib/python3.12/site-packages/tello-0.0.0-py3.12.egg-info
+[0.360s] running install_scripts
+[0.398s] Installing tello_bringup script to /workspaces/ARF/install/tello/lib/tello
+[0.400s] writing list of installed files to '/workspaces/ARF/build/tello/install.log'
+[0.412s] Invoked command in '/workspaces/ARF/src/tello' returned '0': PYTHONPATH=/workspaces/ARF/build/tello/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspaces/ARF/install/tello/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/tello build --build-base /workspaces/ARF/build/tello/build install --record /workspaces/ARF/build/tello/install.log --single-version-externally-managed install_data
