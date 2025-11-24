@@ -7,5 +7,5 @@
     ],
     "settings": {
     },
-    "forwardPorts": [5000]
+    "postCreateCommand": "echo 'source /ros_entrypoint.sh' >> ~/.bashrc"
   }
