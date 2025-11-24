@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'tello_bringup = tello.tello:main',
+            'tello_bringup = tello.node:main',
         ],
     },
 )

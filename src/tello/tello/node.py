@@ -4,8 +4,8 @@ import rclpy
 from rclpy.node import Node
 
 from djitellopy import Tello
-from tello_msg.msg import TelloStatus, TelloID, TelloWifiConfig
-from tello.constants import TELLO_IP, CONNECTION_TIMEOUT
+# from tello_msg.msg import TelloStatus, TelloID, TelloWifiConfig
+# from tello.constants import TELLO_IP, CONNECTION_TIMEOUT
 
 class TelloNode(Node):
     def __init__(self):
@@ -28,13 +28,13 @@ class TelloNode(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    node = rclpy.create_node('tello')
-    drone = TelloNode(node)
+    # node = rclpy.create_node('tello')
+    drone = TelloNode()
 
-    rclpy.spin(node)
+    rclpy.spin(drone)
 
-    drone.cb_shutdown()
-    node.destroy_node()
+    # drone.cb_shutdown()
+    drone.destroy_node()
     rclpy.shutdown()
 
 if __name__ == 'main':
