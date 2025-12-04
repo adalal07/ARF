@@ -9,21 +9,21 @@ from djitellopy import Tello
 
 class TelloNode(Node):
     def __init__(self):
-        super("TelloNode")
+        super().__init__("TelloNode")
         print("node initialized")
 
-        # self.declare_parameter('connect_timeout', TELLO_IP)
-        # self.declare_parameter('tello_ip', CONNECTION_TIMEOUT)
+        self.declare_parameter('connect_timeout', 10.0)
+        self.declare_parameter('tello_ip', 10.0)
 
-        # Tello.TELLO_IP = self.tello_ip
-        # Tello.RESPONSE_TIMEOUT = int(self.connect_timeout)
+        Tello.TELLO_IP = '192.168.10.1'
+        Tello.RESPONSE_TIMEOUT = 10 #int(self.connect_timeout)
 
-        # self.get_logger().info('Tello: Connecting to drone')
+        self.get_logger().info('Tello: Connecting to drone')
 
-        # self.tello = Tello()
-        # self.tello.connect()
+        self.tello = Tello()
+        self.tello.connect()
 
-        # self.get_logger().info('Tello: Connected to drone')
+        self.get_logger().info('Tello: Connected to drone')
 
 def main(args=None):
     rclpy.init(args=args)
