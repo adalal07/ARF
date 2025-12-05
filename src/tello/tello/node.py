@@ -24,6 +24,13 @@ class TelloNode(Node):
         self.tello.connect(False)
 
         self.get_logger().info('Tello: Connected to drone')
+        #self.get_logger().info(f"Battery: {self.tello.get_battery()}")
+        
+        input("Preparing for takeoff...")
+        self.tello.takeoff()
+
+        input("Preparing for landing...")
+        self.tello.land()
 
 def main(args=None):
     rclpy.init(args=args)

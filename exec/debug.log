@@ -1,21 +1,30 @@
 Starting >>> tello
-Finished <<< tello [0.53s]
+Finished <<< tello [0.51s]
 
-Summary: 1 package finished [0.62s]
-[INFO] [1764895511.849755339] [TelloNode]: Tello: Connecting to drone
+Summary: 1 package finished [0.58s]
+[INFO] [1764896422.471648177] [TelloNode]: Tello: Connecting to drone
 [INFO] tello.py - 129 - Tello instance was initialized. Host: '192.168.10.1'. Port: '8889'.
 [INFO] tello.py - 438 - Send command: 'command'
-[ERROR] tello.py - 458 - 'utf-8' codec can't decode byte 0xcc in position 0: invalid continuation byte
-[INFO] tello.py - 438 - Send command: 'command'
 [INFO] tello.py - 462 - Response command: 'ok'
-[INFO] [1764895511.955062922] [TelloNode]: Tello: Connected to drone
-[ros2run]: Received signal:  Interrupt
+[INFO] [1764896422.575682677] [TelloNode]: Tello: Connected to drone
 node initialized
+Preparing for takeoff...[INFO] tello.py - 438 - Send command: 'takeoff'
+[INFO] tello.py - 462 - Response takeoff: 'ok'
+Preparing for landing...[INFO] tello.py - 438 - Send command: 'land'
+[INFO] tello.py - 462 - Response land: 'ok'
+[ros2run]: Received signal:  Interrupt
+Traceback (most recent call last):
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 789, in _wait_for_ready_callbacks
+    wait_set.wait(timeout_nsec)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
   File "/workspaces/ARF/install/tello/lib/tello/tello_bringup", line 33, in <module>
     sys.exit(load_entry_point('tello==0.0.0', 'console_scripts', 'tello_bringup')())
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 34, in main
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 41, in main
     rclpy.spin(drone)
   File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/__init__.py", line 324, in spin
     executor.spin_once()
@@ -27,7 +36,12 @@ Traceback (most recent call last):
   File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 887, in wait_for_ready_callbacks
     return next(self._cb_iter)
            ^^^^^^^^^^^^^^^^^^^
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 789, in _wait_for_ready_callbacks
-    wait_set.wait(timeout_nsec)
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 712, in _wait_for_ready_callbacks
+    with ExitStack() as context_stack:
+  File "/usr/lib/python3.12/contextlib.py", line 610, in __exit__
+    raise exc_details[1]
+  File "/usr/lib/python3.12/contextlib.py", line 595, in __exit__
+    if cb(*exc_details):
+       ^^^^^^^^^^^^^^^^
 KeyboardInterrupt
 [ros2run]: Interrupt
