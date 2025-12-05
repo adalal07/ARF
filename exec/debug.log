@@ -1,39 +1,33 @@
 Starting >>> tello
-Finished <<< tello [0.45s]
+Finished <<< tello [0.53s]
 
-Summary: 1 package finished [0.52s]
-[INFO] [1764892524.262271803] [TelloNode]: Tello: Connecting to drone
+Summary: 1 package finished [0.62s]
+[INFO] [1764895511.849755339] [TelloNode]: Tello: Connecting to drone
 [INFO] tello.py - 129 - Tello instance was initialized. Host: '192.168.10.1'. Port: '8889'.
 [INFO] tello.py - 438 - Send command: 'command'
-[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
+[ERROR] tello.py - 458 - 'utf-8' codec can't decode byte 0xcc in position 0: invalid continuation byte
 [INFO] tello.py - 438 - Send command: 'command'
-[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
-[INFO] tello.py - 438 - Send command: 'command'
-[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
+[INFO] tello.py - 462 - Response command: 'ok'
+[INFO] [1764895511.955062922] [TelloNode]: Tello: Connected to drone
+[ros2run]: Received signal:  Interrupt
 node initialized
 Traceback (most recent call last):
   File "/workspaces/ARF/install/tello/lib/tello/tello_bringup", line 33, in <module>
     sys.exit(load_entry_point('tello==0.0.0', 'console_scripts', 'tello_bringup')())
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 32, in main
-    drone = TelloNode()
-            ^^^^^^^^^^^
-  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 24, in __init__
-    self.tello.connect()
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 535, in connect
-    self.send_control_command("command")
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 487, in send_control_command
-    self.raise_result_error(command, response)
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 529, in raise_result_error
-    raise TelloException("Command '{}' was unsuccessful for {} tries. Latest response:\t'{}'"
-djitellopy.tello.TelloException: Command 'command' was unsuccessful for 4 tries. Latest response:	'Aborting command 'command'. Did not receive a response after 7 seconds'
-[ros2run]: Process exited with failure 1
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 34, in main
+    rclpy.spin(drone)
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/__init__.py", line 324, in spin
+    executor.spin_once()
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 934, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 917, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 887, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 789, in _wait_for_ready_callbacks
+    wait_set.wait(timeout_nsec)
+KeyboardInterrupt
+[ros2run]: Interrupt
