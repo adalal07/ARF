@@ -1,47 +1,32 @@
 Starting >>> tello
-Finished <<< tello [0.51s]
+Finished <<< tello [0.64s]
 
-Summary: 1 package finished [0.58s]
-[INFO] [1764896422.471648177] [TelloNode]: Tello: Connecting to drone
+Summary: 1 package finished [0.75s]
+[INFO] [1764901254.639979801] [TelloNode]: Tello: Connecting to drone
 [INFO] tello.py - 129 - Tello instance was initialized. Host: '192.168.10.1'. Port: '8889'.
 [INFO] tello.py - 438 - Send command: 'command'
+[ERROR] tello.py - 458 - 'utf-8' codec can't decode byte 0xcc in position 0: invalid continuation byte
+[INFO] tello.py - 438 - Send command: 'command'
 [INFO] tello.py - 462 - Response command: 'ok'
-[INFO] [1764896422.575682677] [TelloNode]: Tello: Connected to drone
+[INFO] [1764901254.746554426] [TelloNode]: Tello: Connected to drone
+[INFO] [1764901254.766431801] [TelloNode]: Tello: Initialized subscribers/publishers
 node initialized
-Preparing for takeoff...[INFO] tello.py - 438 - Send command: 'takeoff'
-[INFO] tello.py - 462 - Response takeoff: 'ok'
-Preparing for landing...[INFO] tello.py - 438 - Send command: 'land'
-[INFO] tello.py - 462 - Response land: 'ok'
+Starting video capture...[INFO] tello.py - 438 - Send command: 'streamon'
+[INFO] tello.py - 462 - Response streamon: 'ok'
+Preparing for landing...> /workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py(83)video_capture_thread()
+-> while True:
+(Pdb) [ERROR] [1764901263.331256263] [TelloNode]: Shutting down drone...
+[INFO] tello.py - 438 - Send command: 'streamoff'
+[INFO] tello.py - 462 - Response streamoff: 'ok'
 [ros2run]: Received signal:  Interrupt
-Traceback (most recent call last):
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 789, in _wait_for_ready_callbacks
-    wait_set.wait(timeout_nsec)
-KeyboardInterrupt
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/workspaces/ARF/install/tello/lib/tello/tello_bringup", line 33, in <module>
-    sys.exit(load_entry_point('tello==0.0.0', 'console_scripts', 'tello_bringup')())
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 41, in main
-    rclpy.spin(drone)
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/__init__.py", line 324, in spin
-    executor.spin_once()
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 934, in spin_once
-    self._spin_once_impl(timeout_sec)
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 917, in _spin_once_impl
-    handler, entity, node = self.wait_for_ready_callbacks(
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 887, in wait_for_ready_callbacks
-    return next(self._cb_iter)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 712, in _wait_for_ready_callbacks
-    with ExitStack() as context_stack:
-  File "/usr/lib/python3.12/contextlib.py", line 610, in __exit__
-    raise exc_details[1]
-  File "/usr/lib/python3.12/contextlib.py", line 595, in __exit__
-    if cb(*exc_details):
-       ^^^^^^^^^^^^^^^^
-KeyboardInterrupt
+object address  : 0xffff477373a0
+object refcount : 3
+object type     : 0xa2ccc0
+object type name: KeyboardInterrupt
+object repr     : KeyboardInterrupt()
+lost sys.stderr
+[ros2run]: Received signal:  Interrupt
+Exception ignored in: <module 'threading' from '/usr/lib/python3.12/threading.py'>
+Exception ignored in sys.unraisablehook: <built-in function unraisablehook>
+KeyboardInterrupt: 
 [ros2run]: Interrupt

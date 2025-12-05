@@ -1,7 +1,12 @@
 import sys
 import cv2
 import yaml
+import numpy
+import threading
+import time
 
+import ament_index_python
+import pdb
 import rclpy
 from rclpy.node import Node
 
@@ -26,13 +31,13 @@ class TelloNode(Node):
         self.camera_info = None
         
         # Check if camera info file was received as argument
-        if len(self.camera_info_file) == 0:
-            share_directory = ament_index_python.get_package_share_directory('tello')
-            self.camera_info_file = share_directory + '/ost.yaml'
+        # if len(self.camera_info_file) == 0:
+        #     share_directory = ament_index_python.get_package_share_directory('tello')
+        #     self.camera_info_file = share_directory + '/ost.yaml'
 
-        # Read camera info from YAML file
-        with open(self.camera_info_file, 'r') as file:
-            self.camera_info = yaml.load(file, Loader=yaml.FullLoader)
+        # # Read camera info from YAML file
+        # with open(self.camera_info_file, 'r') as file:
+        #     self.camera_info = yaml.load(file, Loader=yaml.FullLoader)
             # self.node.get_logger().info('Tello: Camera information YAML' + self.camera_info.__str__())
 
         self.get_logger().info('Tello: Connecting to drone')
@@ -47,14 +52,15 @@ class TelloNode(Node):
         self.create_subscribers()
         self.get_logger().info('Tello: Initialized subscribers/publishers')
         
-        input("Preparing for takeoff...")
-        self.tello.takeoff()
+        # input("Preparing for takeoff...")
+        # self.tello.takeoff()
 
         input("Starting video capture...")
         self.start_video_capture()
 
         input("Preparing for landing...")
-        self.tello.land()
+        self.terminate("Shutting down drone...")
+        #self.tello.land()
     
     def create_subscribers(self):
         return
@@ -66,12 +72,21 @@ class TelloNode(Node):
     def start_video_capture(self, rate=1.0/30.0):
         # Enable tello stream
         self.tello.streamon()
+        time.sleep(rate)
 
         # OpenCV bridge
         self.bridge = CvBridge()
 
         def video_capture_thread():
-            frame_read = self.tello.get_frame_read()
+            frame_read = None
+            pdb.set_trace()
+            while True:
+                try:
+                    frame_read = self.tello.get_frame_read()
+                    break
+                except djitellopy.tello.TelloException as e:
+                    self.get_logger().warn(f'Failed to get frame read: {e}, retrying...')
+                    time.sleep(0.5)
 
             while True:
                 # Get frame from drone
@@ -89,6 +104,11 @@ class TelloNode(Node):
         thread = threading.Thread(target=video_capture_thread)
         thread.start()
         return thread
+    
+    def terminate(self, error):
+        self.get_logger().error(str(error))
+        #self.tello.land()
+        self.tello.end()
 
 def main(args=None):
     rclpy.init(args=args)
