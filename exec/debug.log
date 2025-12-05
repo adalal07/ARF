@@ -1,0 +1,39 @@
+Starting >>> tello
+Finished <<< tello [0.45s]
+
+Summary: 1 package finished [0.52s]
+[INFO] [1764892524.262271803] [TelloNode]: Tello: Connecting to drone
+[INFO] tello.py - 129 - Tello instance was initialized. Host: '192.168.10.1'. Port: '8889'.
+[INFO] tello.py - 438 - Send command: 'command'
+[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
+[INFO] tello.py - 438 - Send command: 'command'
+[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
+[INFO] tello.py - 438 - Send command: 'command'
+[WARNING] tello.py - 448 - Aborting command 'command'. Did not receive a response after 7 seconds
+node initialized
+Traceback (most recent call last):
+  File "/workspaces/ARF/install/tello/lib/tello/tello_bringup", line 33, in <module>
+    sys.exit(load_entry_point('tello==0.0.0', 'console_scripts', 'tello_bringup')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 32, in main
+    drone = TelloNode()
+            ^^^^^^^^^^^
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/node.py", line 24, in __init__
+    self.tello.connect()
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 535, in connect
+    self.send_control_command("command")
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 487, in send_control_command
+    self.raise_result_error(command, response)
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/enforce_types.py", line 54, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/djitellopy/tello.py", line 529, in raise_result_error
+    raise TelloException("Command '{}' was unsuccessful for {} tries. Latest response:\t'{}'"
+djitellopy.tello.TelloException: Command 'command' was unsuccessful for 4 tries. Latest response:	'Aborting command 'command'. Did not receive a response after 7 seconds'
+[ros2run]: Process exited with failure 1

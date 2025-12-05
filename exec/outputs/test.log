@@ -1,0 +1,26 @@
+Starting >>> tello
+Finished <<< tello [0.43s]
+
+Summary: 1 package finished [0.50s]
+[ros2run]: Received signal:  Interrupt
+tello initialized
+Traceback (most recent call last):
+  File "/workspaces/ARF/install/tello/lib/tello/tello_bringup", line 33, in <module>
+    sys.exit(load_entry_point('tello==0.0.0', 'console_scripts', 'tello_bringup')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ARF/install/tello/lib/python3.12/site-packages/tello/tello.py", line 35, in main
+    rclpy.spin(drone)
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/__init__.py", line 324, in spin
+    executor.spin_once()
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 934, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 917, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 887, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/rolling/lib/python3.12/site-packages/rclpy/executors.py", line 789, in _wait_for_ready_callbacks
+    wait_set.wait(timeout_nsec)
+KeyboardInterrupt
+[ros2run]: Interrupt
