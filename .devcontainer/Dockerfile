@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 RUN echo 'source /ros_entrypoint.sh' >> ~/.bashrc
 
 # Install regular pip packages
-RUN python3 -m pip install --break-system-packages rospkg av numpy pillow
+RUN python3 -m pip install --break-system-packages rospkg av numpy pillow pyyaml
 
 # Install djitellopy without its opencv-python dependency (we use system opencv)
 RUN python3 -m pip install --break-system-packages --no-deps djitellopy
