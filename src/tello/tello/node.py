@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 
 from djitellopy import Tello
+
 # from tello_msg.msg import TelloStatus, TelloID, TelloWifiConfig
 # from tello.constants import TELLO_IP, CONNECTION_TIMEOUT
 
@@ -25,6 +26,8 @@ class TelloNode(Node):
 
         self.get_logger().info('Tello: Connected to drone')
         #self.get_logger().info(f"Battery: {self.tello.get_battery()}")
+
+        self.subscription = self.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 10)
         
         input("Preparing for takeoff...")
         self.tello.takeoff()
@@ -44,5 +47,5 @@ def main(args=None):
     drone.destroy_node()
     rclpy.shutdown()
 
-if __name__ == 'main':
+if __name__ == '__main__':
     main()
