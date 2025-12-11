@@ -10,8 +10,8 @@ class ExternalViewPDFollower(Node):
         super().__init__('external_view_follower')
 
         # --- CONFIGURATION ---
-        self.DRONE_FRAME = 'drone_marker'
-        self.PERSON_FRAME = 'person_marker'
+        self.DRONE_FRAME = 'aruco_0'
+        self.PERSON_FRAME = 'aruco_1'
         self.SAFE_DISTANCE = 1.0 
         
         # --- TUNING (The Art of Control) ---
