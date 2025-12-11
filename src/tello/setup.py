@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'tello_bringup = tello.node:main',
+            'aruco_tf_broadcaster = tello.aruco_tf_broadcaster:main',
         ],
     },
 )
