@@ -1,9 +1,13 @@
 import argparse
+import threading
+import time
+from pathlib import Path
 
 import cv2
 import rclpy
 from cv_bridge import CvBridge
 from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import Image
 
 
@@ -21,6 +25,10 @@ class CameraPublisher(Node):
         self.declare_parameter('frame_rate', overrides.get('frame_rate', 30.0))
         self.declare_parameter('frame_id', overrides.get('frame_id', 'camera_link'))
         self.declare_parameter('topic_name', overrides.get('topic_name', 'camera/image_raw'))
+        self.declare_parameter(
+            'save_directory',
+            overrides.get('save_directory', 'data/camera_publisher/published_frames')
+        )
 
         camera_index = int(self.get_parameter('camera_index').value)
         frame_width = int(self.get_parameter('frame_width').value)
@@ -28,9 +36,22 @@ class CameraPublisher(Node):
         frame_rate = float(self.get_parameter('frame_rate').value)
         self.frame_id = str(self.get_parameter('frame_id').value)
         self.topic_name = str(self.get_parameter('topic_name').value)
-
-        self.publisher_ = self.create_publisher(Image, self.topic_name, 10)
+        self.save_dir = Path(str(self.get_parameter('save_directory').value))
+        self.save_dir.mkdir(parents=True, exist_ok=True)
+        qos_profile = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,  # only keep the latest frame
+            reliability=ReliabilityPolicy.RELIABLE  # match reliable subscribers
+        )
+        self.publisher_ = self.create_publisher(Image, self.topic_name, qos_profile)
         self.cap = cv2.VideoCapture("tcp://host.docker.internal:8081", cv2.CAP_FFMPEG)
+        # Try to keep capture buffering minimal so we always read the freshest frame.
+        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        self.latest_frame = None
+        self.frame_lock = threading.Lock()
+        self.capture_running = True
+        self.capture_thread = threading.Thread(target=self._capture_loop, daemon=True)
+        self.capture_thread.start()
 
         if frame_width > 0:
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
@@ -49,21 +70,47 @@ class CameraPublisher(Node):
         )
 
     def publish_frame(self):
-        ret, frame = self.cap.read()
+        with self.frame_lock:
+            frame = None if self.latest_frame is None else self.latest_frame.copy()
 
-        if not ret:
-            self.get_logger().warning('Failed to read frame from camera')
+        if frame is None:
+            self.get_logger().warning('No frame available to publish')
             return
 
+        now = self.get_clock().now()
+        stamp_msg = now.to_msg()
+
         msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
-        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.stamp = stamp_msg
         msg.header.frame_id = self.frame_id
         self.publisher_.publish(msg)
+        self.save_frame(frame, now.nanoseconds)
+
+    def save_frame(self, frame, timestamp_ns: int):
+        filename = f'{timestamp_ns}.png'
+        out_path = self.save_dir / filename
+        try:
+            cv2.imwrite(str(out_path), frame)
+        except Exception as exc:
+            self.get_logger().warning(f'Failed to save frame to {out_path}: {exc}')
 
     def destroy_node(self):
+        self.capture_running = False
+        if self.capture_thread.is_alive():
+            self.capture_thread.join(timeout=1.0)
         if self.cap.isOpened():
             self.cap.release()
         super().destroy_node()
+
+    def _capture_loop(self):
+        """Continuously grab frames so the latest is always available."""
+        while self.capture_running:
+            ret, frame = self.cap.read()
+            if not ret:
+                time.sleep(0.01)
+                continue
+            with self.frame_lock:
+                self.latest_frame = frame
 
 
 def main():

@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 import cv2
 import mediapipe as mp
@@ -16,11 +17,16 @@ class HandGestures(Node):
         self.declare_parameter('image_topic', 'camera/image_raw')
         image_topic = self.get_parameter('image_topic').value
         self.bridge = CvBridge()
+        qos_profile = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE
+        )
         self.subscription = self.create_subscription(
             Image,
             image_topic,
             self.image_callback,
-            10
+            qos_profile
         )
 
         self.pub_gesture = self.create_publisher(String, 'hand_gesture', 10)
