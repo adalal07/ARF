@@ -89,14 +89,10 @@ class HandGestures(Node):
                             cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (0, 255, 0), 2)
 
-        # Show debug window (optional)
-        cv2.imshow("Gesture Node", frame)
-        cv2.waitKey(1)
-
 
 def main(args=None):
     rclpy.init(args=args)
-    node = HandGestureNode()
+    node = HandGestures()
 
     try:
         rclpy.spin(node)
