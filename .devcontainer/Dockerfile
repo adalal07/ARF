@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     python3-opencv \
     libopencv-dev \
+    ffmpeg \
     ros-rolling-tf-transformations
 
 # USER ros_user
