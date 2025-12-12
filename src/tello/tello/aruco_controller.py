@@ -12,16 +12,16 @@ class ExternalViewPDFollower(Node):
         # --- CONFIGURATION ---
         self.DRONE_FRAME = drone_frame
         self.PERSON_FRAME = target_frame
-        self.SAFE_DISTANCE = 1.0 
+        self.SAFE_DISTANCE = 0.01
         
         # --- TUNING (The Art of Control) ---
         
         # Distance (Forward/Back)
-        self.Kp_dist = 0.6  # Power to reach target
-        self.Kd_dist = 0.1  # Braking power
+        self.Kp_dist = 0.0#0.9  # Power to reach target
+        self.Kd_dist = 0.0# 0.1  # Braking power
 
         # Yaw (Turning)
-        self.Kp_yaw  = 1.5
+        self.Kp_yaw  = 0.1
         self.Kd_yaw  = 0.2
 
         # Altitude (Up/Down)
@@ -46,8 +46,9 @@ class ExternalViewPDFollower(Node):
     def control_loop(self):
         try:
             t = self.tf_buffer.lookup_transform(
-                self.DRONE_FRAME, self.PERSON_FRAME, rclpy.time.Time())
+                self.PERSON_FRAME, self.DRONE_FRAME, rclpy.time.Time())
         except Exception:
+            print("Can't find transform between frames")
             self.publisher_.publish(Twist()) # Stop if lost
             return
 
@@ -63,18 +64,20 @@ class ExternalViewPDFollower(Node):
         rel_x = t.transform.translation.x
         rel_y = t.transform.translation.y
         rel_z = t.transform.translation.z
+        #print(f"Curr drone position: x: {rel_x}, y: {rel_y}, z: {rel_z}")
 
         cmd = Twist()
 
         # --- CONTROLLER 1: YAW (Turn to Face) ---
         # Error: Angle to target (0 means we are facing them)
-        yaw_error = math.atan2(rel_y, rel_x)
+        yaw_error = rel_y #math.atan2(rel_y, rel_x)
+        #print(f"relx: {rel_x}, rely: {rel_y}, Yaw error: {yaw_error}")
         
         # Derivative: (Current Error - Prev Error) / Time
         yaw_derivative = (yaw_error - self.prev_error_yaw) / dt
         
         # PD Equation: Output = (Kp * Error) + (Kd * Derivative)
-        cmd.angular.z = (self.Kp_yaw * yaw_error) + (self.Kd_yaw * yaw_derivative)
+        cmd.angular.x = (self.Kp_yaw * yaw_error) + (self.Kd_yaw * yaw_derivative)
         
         self.prev_error_yaw = yaw_error
 
@@ -87,7 +90,7 @@ class ExternalViewPDFollower(Node):
         
         # Logic: Only drive forward if facing roughly the right way
         if abs(yaw_error) < 0.8:
-            cmd.linear.x = (self.Kp_dist * dist_error) + (self.Kd_dist * dist_derivative)
+            cmd.linear.x = (self.Kp_dist * dist_error) #+ (self.Kd_dist * dist_derivative)
         else:
             cmd.linear.x = 0.0
             
@@ -105,9 +108,20 @@ class ExternalViewPDFollower(Node):
 
         # --- SAFETY CLAMPS ---
         # Tello SDK expects velocity roughly between -1.0 and 1.0 (remapped to 100)
-        cmd.linear.x = max(min(cmd.linear.x, 0.5), -0.5)
-        cmd.linear.z = max(min(cmd.linear.z, 0.5), -0.5)
-        cmd.angular.z = max(min(cmd.angular.z, 1.0), -1.0)
+        #cmd.linear.x = max(min(cmd.linear.x, 0.5), -0.5)
+        #cmd.linear.z = max(min(cmd.linear.z, 0.5), -0.5)
+        #cmd.angular.z = max(min(cmd.angular.z, 1.0), -1.0)
         cmd.linear.y = 0.0
 
+        #print(f"Publishing command: linear.x: {cmd.linear.x}, linear.z: {cmd.linear.z}, angular.z: {cmd.angular.z}")
         self.publisher_.publish(cmd)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ExternalViewPDFollower()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

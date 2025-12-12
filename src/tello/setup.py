@@ -27,6 +27,7 @@ setup(
             'tello_bringup = tello.node:main',
             'aruco_tf_broadcaster = tello.aruco_tf_broadcaster:main',
             'aruco_viser_visualizer = tello.aruco_viser_visualizer:main',
+            'pid_controller = tello.aruco_controller:main',
         ],
     },
 )

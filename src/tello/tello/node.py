@@ -60,88 +60,83 @@ class TelloNode(Node):
         wait_interval = 0.5
         state_received = False
         
-        for i in range(int(max_wait / wait_interval)):
-            time.sleep(wait_interval)
-            current_state = self.tello.get_current_state()
-            if current_state:
-                self.get_logger().info(f'Tello: State packets received! Keys: {list(current_state.keys())}')
-                state_received = True
-                break
+        # for i in range(int(max_wait / wait_interval)):
+        #     time.sleep(wait_interval)
+        #     current_state = self.tello.get_current_state()
+        #     if current_state:
+        #         self.get_logger().info(f'Tello: State packets received! Keys: {list(current_state.keys())}')
+        #         state_received = True
+        #         break
         
-        if not state_received:
-            self.get_logger().warning('Tello: State packets still not received after waiting')
-            self.get_logger().warning('This may indicate:')
-            self.get_logger().warning('  1. Container not using host networking (rebuild devcontainer)')
-            self.get_logger().warning('  2. Drone not connected to WiFi network')
-            self.get_logger().warning('  3. Computer not connected to Tello WiFi network')
-            self.get_logger().warning('  4. Firewall blocking UDP port 8890')
+        # if not state_received:
+        #     self.get_logger().warning('Tello: State packets still not received after waiting')
+        #     self.get_logger().warning('This may indicate:')
+        #     self.get_logger().warning('  1. Container not using host networking (rebuild devcontainer)')
+        #     self.get_logger().warning('  2. Drone not connected to WiFi network')
+        #     self.get_logger().warning('  3. Computer not connected to Tello WiFi network')
+        #     self.get_logger().warning('  4. Firewall blocking UDP port 8890')
             # Continue anyway - some operations may still work
-        
-        # Create publishers for velocities and accelerations
-        self.create_publishers()
-        self.create_subscribers()
 
         # Try to get battery with error handling
-        try:
-            battery = self.tello.get_battery()
-            self.get_logger().info(f"Battery: {battery}%")
-            print(f"Battery: {battery}%")
-        except Exception as e:
-            self.get_logger().error(f"Failed to get battery: {e}")
-            current_state = self.tello.get_current_state()
-            self.get_logger().error(f"Current state dictionary: {current_state}")
-            if not current_state:
-                self.get_logger().error("State dictionary is empty - UDP packets on port 8890 are not reaching the container")
-                self.get_logger().error("Please verify:")
-                self.get_logger().error("  1. Devcontainer was rebuilt with --network=host")
-                self.get_logger().error("  2. You are connected to the Tello's WiFi network")
-                self.get_logger().error("  3. The drone is powered on and in SDK mode")
-            # Don't raise - allow code to continue for testing
-            self.get_logger().warning("Continuing despite state access failure...")
+        # try:
+        #     battery = self.tello.get_battery()
+        #     self.get_logger().info(f"Battery: {battery}%")
+        #     print(f"Battery: {battery}%")
+        # except Exception as e:
+        #     self.get_logger().error(f"Failed to get battery: {e}")
+        #     current_state = self.tello.get_current_state()
+        #     self.get_logger().error(f"Current state dictionary: {current_state}")
+        #     if not current_state:
+        #         self.get_logger().error("State dictionary is empty - UDP packets on port 8890 are not reaching the container")
+        #         self.get_logger().error("Please verify:")
+        #         self.get_logger().error("  1. Devcontainer was rebuilt with --network=host")
+        #         self.get_logger().error("  2. You are connected to the Tello's WiFi network")
+        #         self.get_logger().error("  3. The drone is powered on and in SDK mode")
+        #     # Don't raise - allow code to continue for testing
+        #     self.get_logger().warning("Continuing despite state access failure...")
         
         # input("Press Enter to start pose capture...")
         # self.publish_velocity_acceleration()
         # self.start_pose_capture()
+        # Create publishers for velocities and accelerations
 
         input("Preparing for takeoff...")
         self.tello.takeoff()
 
-        input("Move sequence?")
-        self.tello.rotate_clockwise(180)
-
-        input("flip?")
-        self.tello.flip()
+        input("Move to target?")
+        #self.tello.send_rc_control(0, 20, 0, 20)
+        self.create_publishers()
+        self.create_subscribers()
+        print("Initatied publishers and subscribers")
+        # timer_period = 0.1  # seconds
+        # self.timer = self.create_timer(timer_period, self.cmd_vel_callback)
 
         input("Preparing for landing...")
         self.terminate("Shutting down drone...")
         #self.tello.land()
     
     def create_subscribers(self):
-        self.sub_drone_vel = self.create_subscription(Twist, 'drone_velocity', self.drone_velocity_callback, 10)
+        self.create_subscription(Twist, '/drone_vel', self.cmd_vel_callback, 10)
         return
 
     def create_publishers(self):
-        # self.pub_image_raw = self.create_publisher(Image, 'image_raw', 1)
-        self.pub_drone_pose = self.create_publisher(PoseStamped, 'drone_pose', 1)
-        self.pub_velocity = self.create_publisher(Twist, 'drone_velocity', 1)
-        self.pub_acceleration = self.create_publisher(Twist, 'drone_acceleration', 1)
         return
 
     def cmd_vel_callback(self, msg):
         """
         Translates ROS Twist (m/s) to Tello RC Control (-100 to 100)
         """
-        SCALE = 100.0
         
         def clamp(n): 
             return max(min(100, int(n)), -100)
 
         # Map Twist to RC
-        fb = clamp(msg.linear.x * SCALE)  # Forward/Back
-        ud = clamp(msg.linear.z * SCALE)  # Up/Down
-        yaw = clamp(-msg.angular.z * SCALE) # Yaw (Inverted for Tello)
+        fb = clamp(msg.linear.z * 100)  # Forward/Back
+        ud = clamp(msg.linear.x * 100)  # Up/Down
+        yaw = clamp(-msg.angular.x * 100) # Yaw (Inverted for Tello)
         lr = 0 # Disable strafing (TurtleBot mode)
 
+        print("Current vel: fb: {fb} ud: {ud} yaw: {yaw}")
         self.tello.send_rc_control(lr, fb, ud, yaw)
 
     def start_video_capture(self, rate=1.0/30.0):
