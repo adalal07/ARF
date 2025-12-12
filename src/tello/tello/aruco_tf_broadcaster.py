@@ -3,7 +3,10 @@ import numpy as np
 import rclpy
 from cv_bridge import CvBridge
 from geometry_msgs.msg import TransformStamped
+from pathlib import Path
 from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from rclpy.time import Time
 from sensor_msgs.msg import Image
 from tf2_ros import TransformBroadcaster
 import tf_transformations
@@ -36,6 +39,8 @@ class ArucoTfBroadcaster(Node):
         self.declare_parameter('dist_coeffs', [0.0, 0.0, 0.0, 0.0, 0.0])
         self.declare_parameter('dictionary', 'DICT_4X4_50')
         self.declare_parameter('frame_id', 'camera_optical_frame')
+        self.declare_parameter('all_frames_directory', 'data/aruco/all_frames')
+        self.declare_parameter('no_detection_directory', 'data/aruco/no_detections')
 
         image_topic = self.get_parameter('image_topic').value
         self.marker_length = float(self.get_parameter('marker_length').value)
@@ -59,12 +64,22 @@ class ArucoTfBroadcaster(Node):
 
         self.bridge = CvBridge()
         self.tf_broadcaster = TransformBroadcaster(self)
+        self.all_frames_dir = Path(str(self.get_parameter('all_frames_directory').value))
+        self.no_detection_dir = Path(str(self.get_parameter('no_detection_directory').value))
+        self.all_frames_dir.mkdir(parents=True, exist_ok=True)
+        self.no_detection_dir.mkdir(parents=True, exist_ok=True)
+
+        qos_profile = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE
+        )
 
         self.subscription = self.create_subscription(
             Image,
             image_topic,
             self.image_callback,
-            10
+            qos_profile
         )
 
         self.get_logger().info(f"Subscribed to image topic: {image_topic}")
@@ -86,8 +101,12 @@ class ArucoTfBroadcaster(Node):
             self.get_logger().warning(f'Failed to convert image: {exc}')
             return
 
+        timestamp_ns = self._timestamp_from_msg(msg)
+        self._save_frame(frame, self.all_frames_dir, timestamp_ns)
+
         corners, ids, _ = self.detector.detectMarkers(frame)
         if ids is None:
+            self._save_frame(frame, self.no_detection_dir, timestamp_ns)
             return
 
         for marker_corners, marker_id in zip(corners, ids):
@@ -121,6 +140,20 @@ class ArucoTfBroadcaster(Node):
             t_msg.transform.rotation.w = float(qw)
 
             self.tf_broadcaster.sendTransform(t_msg)
+
+    def _timestamp_from_msg(self, msg: Image) -> int:
+        """Return nanosecond timestamp from message or fallback to current time."""
+        try:
+            return Time.from_msg(msg.header.stamp).nanoseconds
+        except Exception:
+            return self.get_clock().now().nanoseconds
+
+    def _save_frame(self, frame, directory: Path, timestamp_ns: int):
+        out_path = directory / f'{timestamp_ns}.png'
+        try:
+            cv2.imwrite(str(out_path), frame)
+        except Exception as exc:
+            self.get_logger().warning(f'Failed to save frame to {out_path}: {exc}')
 
 
 def main(args=None):

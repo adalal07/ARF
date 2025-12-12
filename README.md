@@ -31,7 +31,7 @@ The following needs to be run inside the docker container.
 ```
 colcon build --packages-select tello
 source install/setup.bash
-python3 src/tello/camera_publisher.py --camera-index 0 --width 1280 --height 720 --fps 30 &
+python3 src/tello/camera_publisher.py --camera-index 0 --width 1280 --height 720 --fps 1 &
 ros2 run tello aruco_tf_broadcaster --ros-args \
     -p image_topic:=/camera/image_raw \
     -p frame_id:=camera_link \
