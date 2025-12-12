@@ -33,6 +33,10 @@ class ExternalViewPDFollower(Node):
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
+        self.sub_gesture = self.create_subscription(String, '/hand_gesture', self.gesture_callback, 10)
+        self.current_gesture = None
+        self.state = "Hover"
+
         # State storage for D-term calculations
         self.prev_error_dist = 0.0
         self.prev_error_yaw = 0.0
@@ -42,6 +46,34 @@ class ExternalViewPDFollower(Node):
 
         self.timer = self.create_timer(0.05, self.control_loop) # 20Hz
         self.get_logger().info("PD Follower Started.")
+
+    def gesture_callback(self, msg):
+        new_gesture = msg.data
+        if new_gesture in ["Fist","Pointing", "2 Fingers", "3 Fingers", "4 Fingers", "Open Hand"]:
+        
+        if new_gesture == self.current_gesture:
+            return
+        elif new_gesture == "Fist":
+            self.get_logger().info(f"Landing")
+            self.state = "Land"
+        elif new_gesture == "Open Hand":
+            self.get_logger().info(f"Hovering")
+            self.state = "Hover"
+        elif new_gesture == "Pointing":
+            self.get_logger().info(f"SWITCHING MODE: {new_gesture}")
+            self.state = new_gesture
+        elif new_gesture == "2 Fingers":
+            self.get_logger().info(f"SWITCHING MODE: {new_gesture}")
+            self.state = new_gesture
+        elif new_gesture == "3 Fingers":
+            self.get_logger().info(f"SWITCHING MODE: {new_gesture}")
+            self.state = new_gesture
+        elif new_gesture == "4 Fingers":
+            self.get_logger().info(f"SWITCHING MODE: {new_gesture}")
+            self.state = new_gesture
+        else:
+            self.get_logger().warn(f"Unknown gesture command: {new_gesture}")
+
 
     def control_loop(self):
         try:
