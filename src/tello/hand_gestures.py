@@ -76,24 +76,33 @@ class HandGestures(Node):
         results = self.hands.process(frame_rgb)
 
         gesture_msg = String()
+        gesture_msg.data = "Unknown"  # default when NO hand is detected
 
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # Draw hand skeleton
-                self.mp_draw.draw_landmarks(
-                    frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
-                )
+            hand_landmarks = results.multi_hand_landmarks[0]
 
-                fingers = self.count_fingers(hand_landmarks)
-                gesture = self.classify_gesture(fingers)
+            # Draw hand
+            self.mp_draw.draw_landmarks(
+                frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
+            )
 
-                gesture_msg.data = gesture
-                self.pub_gesture.publish(gesture_msg)
+            # Count + classify
+            fingers = self.count_fingers(hand_landmarks)
+            gesture = self.classify_gesture(fingers)
 
-                # overlay on video
-                cv2.putText(frame, gesture, (10, 40),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1,
-                            (0, 255, 0), 2)
+            gesture_msg.data = gesture
+
+            cv2.putText(frame, gesture, (10, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (0, 255, 0), 2)
+        else:
+            cv2.putText(frame, "Unknown", (10, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (0, 0, 255), 2)
+
+    # Publish gesture or Unknown
+        self.pub_gesture.publish(gesture_msg)
+
 
 
 def main(args=None):
