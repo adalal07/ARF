@@ -60,6 +60,23 @@ class TelloNode(Node):
         self.pub_image_raw = self.create_publisher(Image, 'image_raw', 1)
         return
 
+    def cmd_vel_callback(self, msg):
+        """
+        Translates ROS Twist (m/s) to Tello RC Control (-100 to 100)
+        """
+        SCALE = 100.0
+        
+        def clamp(n): 
+            return max(min(100, int(n)), -100)
+
+        # Map Twist to RC
+        fb = clamp(msg.linear.x * SCALE)  # Forward/Back
+        ud = clamp(msg.linear.z * SCALE)  # Up/Down
+        yaw = clamp(-msg.angular.z * SCALE) # Yaw (Inverted for Tello)
+        lr = 0 # Disable strafing (TurtleBot mode)
+
+        self.tello.send_rc_control(lr, fb, ud, yaw)
+
     def start_video_capture(self, rate=1.0/30.0):
         # Enable tello stream
         self.tello.streamon()
