@@ -6,5 +6,25 @@
     "extensions": [
     ],
     "settings": {
-    }
+    },
+    "runArgs": [
+      "-p", "8890:8890/udp",
+      "-p", "11111:11111/udp",
+      "-p", "8889:8889/udp"
+    ],
+    "portsAttributes": {
+        "8889": {
+            "protocol": "udp",
+            "label": "Tello Control Port"
+        },
+        "8890": {
+            "protocol": "udp",
+            "label": "Tello State Port"
+        },
+        "11111": {
+            "protocol": "udp",
+            "label": "Tello Video Port"
+        }
+    },
+    "iptables": false
   }

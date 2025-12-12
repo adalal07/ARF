@@ -69,6 +69,10 @@ class ArucoTfBroadcaster(Node):
         self.all_frames_dir.mkdir(parents=True, exist_ok=True)
         self.no_detection_dir.mkdir(parents=True, exist_ok=True)
 
+        # Store last known transforms for all detected markers
+        # Key: marker_id (int), Value: TransformStamped
+        self.known_transforms = {}
+
         qos_profile = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
             depth=1,
@@ -81,6 +85,10 @@ class ArucoTfBroadcaster(Node):
             self.image_callback,
             qos_profile
         )
+
+        # Timer to periodically republish all known transforms
+        # This ensures frames stay in the TF tree even when markers aren't currently visible
+        self.tf_publish_timer = self.create_timer(0.1, self.publish_all_transforms)  # 10 Hz
 
         self.get_logger().info(f"Subscribed to image topic: {image_topic}")
         self.get_logger().info(f"Publishing TF for markers relative to frame: {self.frame_id}")
@@ -107,8 +115,10 @@ class ArucoTfBroadcaster(Node):
         corners, ids, _ = self.detector.detectMarkers(frame)
         if ids is None:
             self._save_frame(frame, self.no_detection_dir, timestamp_ns)
+            # Continue to publish all known transforms even when no markers detected
             return
 
+        # Update transforms for detected markers
         for marker_corners, marker_id in zip(corners, ids):
             img_points = marker_corners[0].astype(np.float32)
             success, rvec, tvec = cv2.solvePnP(
@@ -126,6 +136,7 @@ class ArucoTfBroadcaster(Node):
 
             t = tvec.reshape(3)
 
+            # Create and store the transform
             t_msg = TransformStamped()
             t_msg.header.stamp = self.get_clock().now().to_msg()
             t_msg.header.frame_id = self.frame_id
@@ -139,6 +150,21 @@ class ArucoTfBroadcaster(Node):
             t_msg.transform.rotation.z = float(qz)
             t_msg.transform.rotation.w = float(qw)
 
+            # Store the transform for this marker
+            marker_id_int = int(marker_id)
+            self.known_transforms[marker_id_int] = t_msg
+
+            # Publish immediately
+            self.tf_broadcaster.sendTransform(t_msg)
+
+    def publish_all_transforms(self):
+        """Periodically republish all known transforms to keep them in the TF tree."""
+        current_time = self.get_clock().now().to_msg()
+        
+        for marker_id, t_msg in self.known_transforms.items():
+            # Update timestamp to current time
+            t_msg.header.stamp = current_time
+            # Republish the transform
             self.tf_broadcaster.sendTransform(t_msg)
 
     def _timestamp_from_msg(self, msg: Image) -> int:

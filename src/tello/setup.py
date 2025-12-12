@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'tello_bringup = tello.node:main',
             'aruco_tf_broadcaster = tello.aruco_tf_broadcaster:main',
+            'aruco_viser_visualizer = tello.aruco_viser_visualizer:main',
         ],
     },
 )

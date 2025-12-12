@@ -15,11 +15,16 @@ RUN echo 'source /ros_entrypoint.sh' >> ~/.bashrc
 
 # Install regular pip packages
 RUN python3 -m pip install --break-system-packages \
-    rospkg av numpy pillow pyyaml mediapipe transforms3d
+    rospkg av numpy pillow pyyaml mediapipe transforms3d viser
     
 
 # Install djitellopy without its opencv-python dependency (we use system opencv)
 RUN python3 -m pip install --break-system-packages --no-deps djitellopy
 # USER ros_user
+
+EXPOSE 8889
+EXPOSE 8890
+EXPOSE 11111
+EXPOSE 8080
 
 CMD ["bin/bash"]
