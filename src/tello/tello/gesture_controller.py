@@ -50,12 +50,12 @@ class GestureController(Node):
                 self.move_state = "HOVER"
             elif new_gesture == "Pointing":  # 1 Finger
                 self.move_state = "FORWARD"
-            elif new_gesture == "2 Fingers":
+            elif new_gesture == "2 fingers":
                 self.move_state = "BACKWARD"
-            elif new_gesture == "3 Fingers":
-                self.move_state = "UP"
-            elif new_gesture == "4 Fingers":
-                self.move_state = "DOWN"
+            elif new_gesture == "3 fingers":
+                self.move_state = "LEFT"
+            elif new_gesture == "4 fingers":
+                self.move_state = "RIGHT"
             elif new_gesture == "Open Hand" or new_gesture == "5 Fingers":
                 self.move_state = "ROTATE"
             else:
@@ -77,26 +77,26 @@ class GestureController(Node):
 
         # 2. POINTING = FORWARDS
         elif self.move_state == "FORWARD":
-            cmd.linear.x = self.SPEED
+            cmd.linear.z = self.SPEED
 
         # 3. 2 FINGERS = BACKWARDS
         elif self.move_state == "BACKWARD":
-            cmd.linear.x = -self.SPEED
-
-        # 4. 3 FINGERS = UP
-        elif self.move_state == "UP":
-            cmd.linear.z = self.SPEED
-
-        # 5. 4 FINGERS = DOWN
-        elif self.move_state == "DOWN":
             cmd.linear.z = -self.SPEED
+
+        # 4. 3 FINGERS = left
+        elif self.move_state == "LEFT":
+            cmd.linear.x = self.SPEED
+
+        # 5. 4 FINGERS = right
+        elif self.move_state == "RIGHT":
+            cmd.linear.x = -self.SPEED
 
         # 6. 5 FINGERS (Open Hand) = ROTATE
         elif self.move_state == "ROTATE":
-            cmd.angular.z = self.ROTATE_SPEED  # Rotates Counter-Clockwise
+            cmd.angular.y = self.ROTATE_SPEED  # Rotates Counter-Clockwise
 
         # Publish the command to the drone
-        self.pub_vel.publish(drone_vel)
+        self.pub_vel.publish(cmd)
 
 def main(args=None):
     rclpy.init(args=args)

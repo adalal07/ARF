@@ -100,23 +100,21 @@ class TelloNode(Node):
         # self.start_pose_capture()
         # Create publishers for velocities and accelerations
 
-        input("Preparing for takeoff...")
+        # input("Preparing for takeoff...")
+        print("Preparing for takeoff...")
         self.tello.takeoff()
 
-        input("Move to target?")
+        # input("Move to target?")
         #self.tello.send_rc_control(0, 20, 0, 20)
         self.create_publishers()
         self.create_subscribers()
-        print("Initatied publishers and subscribers")
+        # print("Initatied publishers and subscribers")
         # timer_period = 0.1  # seconds
         # self.timer = self.create_timer(timer_period, self.cmd_vel_callback)
-
-        input("Preparing for landing...")
-        self.terminate("Shutting down drone...")
         #self.tello.land()
     
     def create_subscribers(self):
-        self.create_subscription(Twist, '/drone_vel', self.cmd_vel_callback, 10)
+        self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
         return
 
     def create_publishers(self):
@@ -132,9 +130,9 @@ class TelloNode(Node):
 
         # Map Twist to RC
         fb = clamp(msg.linear.z * 100)  # Forward/Back
-        ud = clamp(msg.linear.x * 100)  # Up/Down
-        yaw = clamp(-msg.angular.x * 100) # Yaw (Inverted for Tello)
-        lr = 0 # Disable strafing (TurtleBot mode)
+        ud = clamp(msg.linear.y * 100)  # Up/Down
+        yaw = clamp(-msg.angular.y * 100) # Yaw (Inverted for Tello)
+        lr = clamp(msg.linear.x * 100)
 
         print("Current vel: fb: {fb} ud: {ud} yaw: {yaw}")
         self.tello.send_rc_control(lr, fb, ud, yaw)
@@ -315,11 +313,16 @@ def main(args=None):
     # node = rclpy.create_node('tello')
     drone = TelloNode()
 
-    rclpy.spin(drone)
-
-    # drone.cb_shutdown()
-    drone.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(drone)
+    except KeyboardInterrupt:
+        # This block runs when you press Ctrl+C
+        print("Landing...")
+        drone.tello.land()
+        drone.terminate("Shutting down drone...")
+    finally:
+        drone.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
