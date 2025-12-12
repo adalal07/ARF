@@ -20,9 +20,9 @@ class ExternalViewPDFollower(Node):
         self.Kp_dist = 0.0#0.9  # Power to reach target
         self.Kd_dist = 0.0# 0.1  # Braking power
 
-        # Yaw (Turning)
-        self.Kp_yaw  = 0.1
-        self.Kd_yaw  = 0.2
+        # Lateral (Left/Right)
+        self.Kp_y  = 0.1
+        self.Kd_y  = 0.2
 
         # Altitude (Up/Down)
         self.Kp_alt  = 1.0
@@ -35,7 +35,7 @@ class ExternalViewPDFollower(Node):
 
         # State storage for D-term calculations
         self.prev_error_dist = 0.0
-        self.prev_error_yaw = 0.0
+        self.prev_error_y = 0.0
         self.prev_error_alt = 0.0
         
         self.last_time = self.get_clock().now()
@@ -68,18 +68,18 @@ class ExternalViewPDFollower(Node):
 
         cmd = Twist()
 
-        # --- CONTROLLER 1: YAW (Turn to Face) ---
-        # Error: Angle to target (0 means we are facing them)
-        yaw_error = rel_y #math.atan2(rel_y, rel_x)
-        #print(f"relx: {rel_x}, rely: {rel_y}, Yaw error: {yaw_error}")
+        # --- CONTROLLER 1: LATERAL (Left/Right) ---
+        # Error: Lateral offset from target (0 means we are aligned)
+        y_error = rel_y
+        #print(f"relx: {rel_x}, rely: {rel_y}, Y error: {y_error}")
         
         # Derivative: (Current Error - Prev Error) / Time
-        yaw_derivative = (yaw_error - self.prev_error_yaw) / dt
+        y_derivative = (y_error - self.prev_error_y) / dt
         
         # PD Equation: Output = (Kp * Error) + (Kd * Derivative)
-        cmd.angular.x = (self.Kp_yaw * yaw_error) + (self.Kd_yaw * yaw_derivative)
+        cmd.linear.y = (self.Kp_y * y_error) + (self.Kd_y * y_derivative)
         
-        self.prev_error_yaw = yaw_error
+        self.prev_error_y = y_error
 
 
         # --- CONTROLLER 2: DISTANCE (Forward/Back) ---
@@ -88,8 +88,8 @@ class ExternalViewPDFollower(Node):
         
         dist_derivative = (dist_error - self.prev_error_dist) / dt
         
-        # Logic: Only drive forward if facing roughly the right way
-        if abs(yaw_error) < 0.8:
+        # Logic: Only drive forward if roughly aligned
+        if abs(y_error) < 0.8:
             cmd.linear.x = (self.Kp_dist * dist_error) #+ (self.Kd_dist * dist_derivative)
         else:
             cmd.linear.x = 0.0
@@ -111,7 +111,6 @@ class ExternalViewPDFollower(Node):
         #cmd.linear.x = max(min(cmd.linear.x, 0.5), -0.5)
         #cmd.linear.z = max(min(cmd.linear.z, 0.5), -0.5)
         #cmd.angular.z = max(min(cmd.angular.z, 1.0), -1.0)
-        cmd.linear.y = 0.0
 
         #print(f"Publishing command: linear.x: {cmd.linear.x}, linear.z: {cmd.linear.z}, angular.z: {cmd.angular.z}")
         self.publisher_.publish(cmd)

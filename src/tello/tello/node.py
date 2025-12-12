@@ -133,10 +133,10 @@ class TelloNode(Node):
         # Map Twist to RC
         fb = clamp(msg.linear.z * 100)  # Forward/Back
         ud = clamp(msg.linear.x * 100)  # Up/Down
-        yaw = clamp(-msg.angular.x * 100) # Yaw (Inverted for Tello)
-        lr = 0 # Disable strafing (TurtleBot mode)
+        lr = clamp(msg.linear.y * 100)  # Left/Right (lateral movement)
+        yaw = 0  # Disable yaw control
 
-        print("Current vel: fb: {fb} ud: {ud} yaw: {yaw}")
+        print("Current vel: fb: {fb} ud: {ud} lr: {lr}")
         self.tello.send_rc_control(lr, fb, ud, yaw)
 
     def start_video_capture(self, rate=1.0/30.0):
