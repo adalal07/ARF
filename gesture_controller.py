@@ -1,12 +1,12 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from std_msgs.msg import String, Empty
+from std_msgs.msg import String
 import time
 
-class GestureTestController(Node):
+class GestureController(Node):
     def __init__(self):
-        super().__init__('gesture_test_controller')
+        super().__init__('gesture_controller')
 
         # --- COMMUNICATIONS ---
         # 1. Listen for Gestures
@@ -19,100 +19,98 @@ class GestureTestController(Node):
 
         # 2. Talk to Drone (Movement)
         self.pub_vel = self.create_publisher(Twist, '/cmd_vel', 10)
-        
-        # 3. Talk to Drone (Actions)
-        self.pub_flip = self.create_publisher(String, '/flip', 1)
-        self.pub_land = self.create_publisher(Empty, '/land', 1)
-        self.pub_takeoff = self.create_publisher(Empty, '/takeoff', 1)
 
         # --- STATE MANAGEMENT ---
         self.current_gesture = "Unknown"
-        self.state = "Hover"  # Initial State
-        self.last_flip_time = 0.0
+        self.move_state = "HOVER"  # Default state
+        
+        # --- CONFIGURATION ---
+        self.SPEED = 0.2          # Linear speed in m/s
+        self.ROTATE_SPEED = 0.5   # Rotational speed in rad/s
 
-        # Run control loop at 10Hz (send commands 10 times a second)
+        # Run control loop at 10Hz
         self.timer = self.create_timer(0.1, self.control_loop)
         
-        self.get_logger().info("Gesture Test Controller Started.")
-        self.get_logger().info("COMMANDS: Pointing=Forward, Fist=Hover, Open Hand=Land, 2 Fingers=Flip")
+        self.get_logger().info("Gesture Controller Started.")
+        self.get_logger().info("MAPPING: Fist=Stop, Pointing=Fwd, 2=Back, 3=Up, 4=Down, 5=Rotate")
 
     def gesture_callback(self, msg):
         """
-        Translates raw hand gestures into State Changes.
+        Updates the internal state based on the gesture received.
         """
         new_gesture = msg.data
         
-        # Anti-spam: Only log when gesture changes
+        # Only log when the gesture actually changes to reduce spam
         if new_gesture != self.current_gesture:
-            self.get_logger().info(f"Gesture Detected: {new_gesture}")
+            self.get_logger().info(f"Gesture detected: {new_gesture}")
             self.current_gesture = new_gesture
-
-        # --- MAPPING LOGIC ---
-
-        # 1. FIST -> START MOVING (Simulate Follow)
-        if new_gesture == "Fist":
-            if self.state != "MOVING":
-                self.get_logger().info("State: MOVING FORWARD")
-                self.state = "MOVING"
-
-        # 2. OPEN HAND -> STOP (Hover)
-        elif new_gesture == "Open Hand":
-            if self.state != "HOVER":
-                self.get_logger().info("State: HOVERING")
-                self.state = "HOVER"
-
-        # 3. 1 FINGER (Pointing) -> FLIP
-        elif new_gesture == "Pointing":
-            # Check cooldown (5 seconds) so we don't spam flips
-            now = self.get_clock().now().nanoseconds / 1e9
-            if (now - self.last_flip_time) > 5.0:
-                self.get_logger().info("ACTION: DO A BARREL ROLL!")
-                self.perform_flip()
-                self.last_flip_time = now
+            
+            # Map Gesture -> Motion State
+            if new_gesture == "Fist":
+                self.move_state = "HOVER"
+            elif new_gesture == "Pointing":  # 1 Finger
+                self.move_state = "FORWARD"
+            elif new_gesture == "2 Fingers":
+                self.move_state = "BACKWARD"
+            elif new_gesture == "3 Fingers":
+                self.move_state = "UP"
+            elif new_gesture == "4 Fingers":
+                self.move_state = "DOWN"
+            elif new_gesture == "Open Hand" or new_gesture == "5 Fingers":
+                self.move_state = "ROTATE"
             else:
-                self.get_logger().warn("Flip is on cooldown...")
-
-        # 4. OPTIONAL: 2 Fingers -> Land (Just in case you need to abort)
-        elif new_gesture == "2 Fingers":
-             self.get_logger().info("ACTION: LANDING")
-             self.pub_land.publish(Empty())
-
-    def perform_flip(self):
-        """Publishes the flip command to the driver node"""
-        msg = String()
-        msg.data = "l"  # 'l' = Left, 'r' = Right, 'f' = Forward
-        self.pub_flip.publish(msg)
-        # Reset state to Hover so we don't drift after flipping
-        self.state = "HOVER"
+                # If gesture is unknown or lost, safer to hover
+                self.move_state = "HOVER"
 
     def control_loop(self):
         """
-        Constantly sends velocity commands based on current State.
+        Publishes velocity commands based on the current 'move_state'.
         """
         cmd = Twist()
 
-        if self.state == "HOVER":
-            # Send 0 velocity to hold position
+        # 1. FIST = HOVER / STOP
+        if self.move_state == "HOVER":
             cmd.linear.x = 0.0
+            cmd.linear.y = 0.0
             cmd.linear.z = 0.0
             cmd.angular.z = 0.0
 
-        elif self.state == "MOVING":
-            # SIMULATED FOLLOW: Move forward slowly
-            # Since we removed Vision, we just move forward blindly.
-            # BE CAREFUL INDOORS!
-            cmd.linear.x = 0.2  # 0.2 m/s Forward
-            cmd.linear.z = 0.0
-            cmd.angular.z = 0.0
+        # 2. POINTING = FORWARDS
+        elif self.move_state == "FORWARD":
+            cmd.linear.x = self.SPEED
 
-        self.pub_vel.publish(cmd)
+        # 3. 2 FINGERS = BACKWARDS
+        elif self.move_state == "BACKWARD":
+            cmd.linear.x = -self.SPEED
+
+        # 4. 3 FINGERS = UP
+        elif self.move_state == "UP":
+            cmd.linear.z = self.SPEED
+
+        # 5. 4 FINGERS = DOWN
+        elif self.move_state == "DOWN":
+            cmd.linear.z = -self.SPEED
+
+        # 6. 5 FINGERS (Open Hand) = ROTATE
+        elif self.move_state == "ROTATE":
+            cmd.angular.z = self.ROTATE_SPEED  # Rotates Counter-Clockwise
+
+        # Publish the command to the drone
+        self.pub_vel.publish(drone_vel)
 
 def main(args=None):
     rclpy.init(args=args)
-    node = GestureTestController()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    node = GestureController()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # Safety: Send a stop command before shutting down
+        stop_cmd = Twist()
+        node.pub_vel.publish(stop_cmd)
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
