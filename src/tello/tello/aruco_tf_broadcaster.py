@@ -167,7 +167,7 @@ class ArucoTfBroadcaster(Node):
             # Republish the transform
             self.tf_broadcaster.sendTransform(t_msg)
 
-    def _timestamp_from_msg(self, msg: Image) -> int:
+    def _timestamp_from_msg(self, msg: src/tello/tello/node.py) -> int:
         """Return nanosecond timestamp from message or fallback to current time."""
         try:
             return Time.from_msg(msg.header.stamp).nanoseconds
