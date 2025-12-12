@@ -17,19 +17,19 @@ class ExternalViewPDFollower(Node):
         # --- TUNING (The Art of Control) ---
         
         # Distance (Forward/Back)
-        self.Kp_dist = 0.0#0.9  # Power to reach target
-        self.Kd_dist = 0.0# 0.1  # Braking power
+        self.Kp_dist = -0.15 #0.9  # Power to reach target
+        self.Kd_dist = -0.1 # 0.1  # Braking power
 
         # Yaw (Turning)
-        self.Kp_yaw  = 0.1
-        self.Kd_yaw  = 0.2
+        self.Kp_yaw  = -0.1
+        self.Kd_yaw  = -0.1
 
         # Altitude (Up/Down)
-        self.Kp_alt  = 1.0
-        self.Kd_alt  = 0.1
+        self.Kp_alt  = 0.1
+        self.Kd_alt  = 0.05
         # ---------------------
 
-        self.publisher_ = self.create_publisher(Twist, '/drone_vel', 10)
+        self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
@@ -48,7 +48,7 @@ class ExternalViewPDFollower(Node):
             t = self.tf_buffer.lookup_transform(
                 self.PERSON_FRAME, self.DRONE_FRAME, rclpy.time.Time())
         except Exception:
-            print("Can't find transform between frames")
+            #print("Can't find transform between frames")
             self.publisher_.publish(Twist()) # Stop if lost
             return
 
@@ -77,22 +77,22 @@ class ExternalViewPDFollower(Node):
         yaw_derivative = (yaw_error - self.prev_error_yaw) / dt
         
         # PD Equation: Output = (Kp * Error) + (Kd * Derivative)
-        cmd.angular.x = (self.Kp_yaw * yaw_error) + (self.Kd_yaw * yaw_derivative)
+        cmd.linear.x = (self.Kp_yaw * yaw_error) + (self.Kd_yaw * yaw_derivative)
         
         self.prev_error_yaw = yaw_error
 
 
         # --- CONTROLLER 2: DISTANCE (Forward/Back) ---
-        current_dist = math.sqrt(rel_x**2 + rel_y**2)
-        dist_error = current_dist - self.SAFE_DISTANCE
+        dist_error = rel_x - self.SAFE_DISTANCE
         
-        dist_derivative = (dist_error - self.prev_error_dist) / dt
+        dist_derivative = (rel_x - self.prev_error_dist) / dt
         
         # Logic: Only drive forward if facing roughly the right way
-        if abs(yaw_error) < 0.8:
-            cmd.linear.x = (self.Kp_dist * dist_error) #+ (self.Kd_dist * dist_derivative)
-        else:
-            cmd.linear.x = 0.0
+        cmd.linear.z = (self.Kp_dist * dist_error) + (self.Kd_dist * dist_derivative)
+        # if abs(yaw_error) < 0.8:
+        #     cmd.linear.z = (self.Kp_dist * dist_error) #+ (self.Kd_dist * dist_derivative)
+        # else:
+        #     cmd.linear.z = 0.0
             
         self.prev_error_dist = dist_error
 
@@ -101,7 +101,7 @@ class ExternalViewPDFollower(Node):
         alt_error = rel_z # We want relative Z to be 0
         alt_derivative = (alt_error - self.prev_error_alt) / dt
         
-        cmd.linear.z = (self.Kp_alt * alt_error) + (self.Kd_alt * alt_derivative)
+        cmd.linear.y = (self.Kp_alt * alt_error) + (self.Kd_alt * alt_derivative)
         
         self.prev_error_alt = alt_error
 
@@ -111,9 +111,10 @@ class ExternalViewPDFollower(Node):
         #cmd.linear.x = max(min(cmd.linear.x, 0.5), -0.5)
         #cmd.linear.z = max(min(cmd.linear.z, 0.5), -0.5)
         #cmd.angular.z = max(min(cmd.angular.z, 1.0), -1.0)
-        cmd.linear.y = 0.0
+        # cmd.linear.x = 0.0
 
-        #print(f"Publishing command: linear.x: {cmd.linear.x}, linear.z: {cmd.linear.z}, angular.z: {cmd.angular.z}")
+        print(f"Publishing command: linear.x: {cmd.linear.x:.5f},  linear.y: {cmd.linear.y:5f}, linear.z: {cmd.linear.z:5f}")
+        print(f"Relative err: relx: {rel_x:5f}, rely: {rel_y:5f}, relz: {rel_z:5f}")
         self.publisher_.publish(cmd)
 
 def main(args=None):

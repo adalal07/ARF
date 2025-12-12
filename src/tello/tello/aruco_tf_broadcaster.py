@@ -88,7 +88,7 @@ class ArucoTfBroadcaster(Node):
 
         # Timer to periodically republish all known transforms
         # This ensures frames stay in the TF tree even when markers aren't currently visible
-        self.tf_publish_timer = self.create_timer(0.1, self.publish_all_transforms)  # 10 Hz
+        #self.tf_publish_timer = self.create_timer(0.1, self.publish_all_transforms)  # 10 Hz
 
         self.get_logger().info(f"Subscribed to image topic: {image_topic}")
         self.get_logger().info(f"Publishing TF for markers relative to frame: {self.frame_id}")
@@ -114,9 +114,9 @@ class ArucoTfBroadcaster(Node):
 
         corners, ids, _ = self.detector.detectMarkers(frame)
         if ids is None:
-            self._save_frame(frame, self.no_detection_dir, timestamp_ns)
-            # Continue to publish all known transforms even when no markers detected
-            return
+           self._save_frame(frame, self.no_detection_dir, timestamp_ns)
+           # Continue to publish all known transforms even when no markers detected
+           return
 
         # Update transforms for detected markers
         for marker_corners, marker_id in zip(corners, ids):
@@ -167,7 +167,7 @@ class ArucoTfBroadcaster(Node):
             # Republish the transform
             self.tf_broadcaster.sendTransform(t_msg)
 
-    def _timestamp_from_msg(self, msg: src/tello/tello/node.py) -> int:
+    def _timestamp_from_msg(self, msg: Image) -> int:
         """Return nanosecond timestamp from message or fallback to current time."""
         try:
             return Time.from_msg(msg.header.stamp).nanoseconds
