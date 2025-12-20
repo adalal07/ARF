@@ -42,18 +42,16 @@ class HandGestures(Node):
         self.get_logger().info(f"Subscribed to image topic: {image_topic}")
         self.get_logger().info("Publishing gestures on: /hand_gesture")
 
-    # Count fingers ----------------------------------------
     def count_fingers(self, hand_landmarks):
         tips = [4, 8, 12, 16, 20]
         finger_count = 0
 
-        for tip_id in tips[1:]:  # skip thumb for now
+        for tip_id in tips[1:]:  
             tip_y = hand_landmarks.landmark[tip_id].y
             lower_joint_y = hand_landmarks.landmark[tip_id - 2].y
             if tip_y < lower_joint_y:
                 finger_count += 1
 
-        # Thumb
         thumb_tip_x = hand_landmarks.landmark[4].x
         thumb_joint_x = hand_landmarks.landmark[3].x
         if thumb_tip_x > thumb_joint_x:
@@ -61,14 +59,12 @@ class HandGestures(Node):
 
         return finger_count
 
-    # Classify gesture --------------------------------------
     def classify_gesture(self, finger_count):
         if finger_count == 0: return "Fist"
         if finger_count == 1: return "Pointing"
         if finger_count == 5: return "Open Hand"
         return f"{finger_count} fingers"
 
-    # ROS image callback ------------------------------------
     def image_callback(self, msg):
         frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
@@ -76,17 +72,17 @@ class HandGestures(Node):
         results = self.hands.process(frame_rgb)
 
         gesture_msg = String()
-        gesture_msg.data = "Unknown"  # default when NO hand is detected
+        gesture_msg.data = "Unknown"  
 
         if results.multi_hand_landmarks:
             hand_landmarks = results.multi_hand_landmarks[0]
 
-            # Draw hand
+            
             self.mp_draw.draw_landmarks(
                 frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
             )
 
-            # Count + classify
+            
             fingers = self.count_fingers(hand_landmarks)
             gesture = self.classify_gesture(fingers)
 
@@ -100,7 +96,6 @@ class HandGestures(Node):
                     cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (0, 0, 255), 2)
 
-    # Publish gesture or Unknown
         self.pub_gesture.publish(gesture_msg)
 
 

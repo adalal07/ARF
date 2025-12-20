@@ -8,7 +8,6 @@ class GestureController(Node):
     def __init__(self):
         super().__init__('gesture_controller')
 
-        # --- COMMUNICATIONS ---
         # 1. Listen for Gestures
         self.sub_gesture = self.create_subscription(
             String, 
@@ -17,18 +16,14 @@ class GestureController(Node):
             10
         )
 
-        # 2. Talk to Drone (Movement)
         self.pub_vel = self.create_publisher(Twist, '/cmd_vel', 10)
 
-        # --- STATE MANAGEMENT ---
         self.current_gesture = "Unknown"
         self.move_state = "HOVER"  # Default state
         
-        # --- CONFIGURATION ---
         self.SPEED = 0.2          # Linear speed in m/s
         self.ROTATE_SPEED = 0.5   # Rotational speed in rad/s
 
-        # Run control loop at 10Hz
         self.timer = self.create_timer(0.1, self.control_loop)
         
         self.get_logger().info("Gesture Controller Started.")
@@ -40,12 +35,10 @@ class GestureController(Node):
         """
         new_gesture = msg.data
         
-        # Only log when the gesture actually changes to reduce spam
         if new_gesture != self.current_gesture:
             self.get_logger().info(f"Gesture detected: {new_gesture}")
             self.current_gesture = new_gesture
             
-            # Map Gesture -> Motion State
             if new_gesture == "Fist":
                 self.move_state = "HOVER"
             elif new_gesture == "Pointing":  # 1 Finger
@@ -59,7 +52,6 @@ class GestureController(Node):
             elif new_gesture == "Open Hand" or new_gesture == "5 Fingers":
                 self.move_state = "ROTATE"
             else:
-                # If gesture is unknown or lost, safer to hover
                 self.move_state = "HOVER"
 
     def control_loop(self):
@@ -68,34 +60,27 @@ class GestureController(Node):
         """
         cmd = Twist()
 
-        # 1. FIST = HOVER / STOP
         if self.move_state == "HOVER":
             cmd.linear.x = 0.0
             cmd.linear.y = 0.0
             cmd.linear.z = 0.0
             cmd.angular.z = 0.0
 
-        # 2. POINTING = FORWARDS
         elif self.move_state == "FORWARD":
             cmd.linear.z = self.SPEED
 
-        # 3. 2 FINGERS = BACKWARDS
         elif self.move_state == "BACKWARD":
             cmd.linear.z = -self.SPEED
 
-        # 4. 3 FINGERS = left
         elif self.move_state == "LEFT":
             cmd.linear.x = self.SPEED
 
-        # 5. 4 FINGERS = right
         elif self.move_state == "RIGHT":
             cmd.linear.x = -self.SPEED
 
-        # 6. 5 FINGERS (Open Hand) = ROTATE
         elif self.move_state == "ROTATE":
-            cmd.angular.y = self.ROTATE_SPEED  # Rotates Counter-Clockwise
+            cmd.angular.y = self.ROTATE_SPEED 
 
-        # Publish the command to the drone
         self.pub_vel.publish(cmd)
 
 def main(args=None):
