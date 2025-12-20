@@ -13,8 +13,6 @@ from rclpy.node import Node
 
 from djitellopy import Tello
 from geometry_msgs.msg import PoseStamped, Twist
-# from tello_msg.msg import TelloStatus, TelloID, TelloWifiConfig
-# from tello.constants import TELLO_IP, CONNECTION_TIMEOUT
 
 class TelloNode(Node):
     def __init__(self):
@@ -25,20 +23,7 @@ class TelloNode(Node):
         self.declare_parameter('tello_ip', 10.0)
 
         Tello.TELLO_IP = '192.168.10.1'
-        Tello.RESPONSE_TIMEOUT = 10 #int(self.connect_timeout)
-        self.camera_info_file = ""
-
-        self.camera_info = None
-        
-        # Check if camera info file was received as argument
-        # if len(self.camera_info_file) == 0:
-        #     share_directory = ament_index_python.get_package_share_directory('tello')
-        #     self.camera_info_file = share_directory + '/ost.yaml'
-
-        # # Read camera info from YAML file
-        # with open(self.camera_info_file, 'r') as file:
-        #     self.camera_info = yaml.load(file, Loader=yaml.FullLoader)
-            # self.node.get_logger().info('Tello: Camera information YAML' + self.camera_info.__str__())
+        Tello.RESPONSE_TIMEOUT = 10
 
         self.get_logger().info('Tello: Connecting to drone')
 
@@ -57,15 +42,10 @@ class TelloNode(Node):
         print("Preparing for takeoff...")
         self.tello.takeoff()
 
-        self.create_publishers()
         self.create_subscribers()
     
     def create_subscribers(self):
         self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
-        return
-
-    def create_publishers(self):
-        return
 
     def cmd_vel_callback(self, msg):
         """
@@ -84,6 +64,11 @@ class TelloNode(Node):
         print("Current vel: fb: {fb} ud: {ud} yaw: {yaw}")
         self.tello.send_rc_control(lr, fb, ud, yaw)
 
+    """
+    This was not used in the final implementation because we weren't able to receive packets from the
+    drone in the Docker container. We were able to connect to the drone's camera outside of Docker,
+    but not inside due to an issue with receiving the first frame from the stream.
+    """
     def start_video_capture(self, rate=1.0/30.0):
         # Enable tello stream
         self.tello.streamon()
@@ -120,6 +105,10 @@ class TelloNode(Node):
         thread.start()
         return thread
     
+    """
+    This was not used in the final implementation because we weren't able to receive packets from the
+    drone in the Docker container.
+    """
     def publish_velocity_acceleration(self, rate=0.1):
         """Publish drone velocities and accelerations as Twist messages"""
         def publish_thread():
@@ -254,7 +243,6 @@ class TelloNode(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    # node = rclpy.create_node('tello')
     drone = TelloNode()
 
     try:
