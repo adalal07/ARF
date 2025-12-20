@@ -29,6 +29,7 @@ setup(
             'aruco_viser_visualizer = tello.aruco_viser_visualizer:main',
             'pid_controller = tello.aruco_controller:main',
             'gesture_controller = tello.gesture_controller:main',
+            'hand_gesture_detector = tello.hand_gestures:main',
         ],
     },
 )

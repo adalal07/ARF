@@ -54,64 +54,11 @@ class TelloNode(Node):
             # Still send the command to enter SDK mode
             self.tello.send_control_command("command")
 
-        # Give more time for state packets to arrive (drone may need time to start broadcasting)
-        self.get_logger().info('Tello: Waiting for state packets...')
-        max_wait = 10  # Wait up to 10 seconds
-        wait_interval = 0.5
-        state_received = False
-        
-        # for i in range(int(max_wait / wait_interval)):
-        #     time.sleep(wait_interval)
-        #     current_state = self.tello.get_current_state()
-        #     if current_state:
-        #         self.get_logger().info(f'Tello: State packets received! Keys: {list(current_state.keys())}')
-        #         state_received = True
-        #         break
-        
-        # if not state_received:
-        #     self.get_logger().warning('Tello: State packets still not received after waiting')
-        #     self.get_logger().warning('This may indicate:')
-        #     self.get_logger().warning('  1. Container not using host networking (rebuild devcontainer)')
-        #     self.get_logger().warning('  2. Drone not connected to WiFi network')
-        #     self.get_logger().warning('  3. Computer not connected to Tello WiFi network')
-        #     self.get_logger().warning('  4. Firewall blocking UDP port 8890')
-            # Continue anyway - some operations may still work
-
-        # Try to get battery with error handling
-        # try:
-        #     battery = self.tello.get_battery()
-        #     self.get_logger().info(f"Battery: {battery}%")
-        #     print(f"Battery: {battery}%")
-        # except Exception as e:
-        #     self.get_logger().error(f"Failed to get battery: {e}")
-        #     current_state = self.tello.get_current_state()
-        #     self.get_logger().error(f"Current state dictionary: {current_state}")
-        #     if not current_state:
-        #         self.get_logger().error("State dictionary is empty - UDP packets on port 8890 are not reaching the container")
-        #         self.get_logger().error("Please verify:")
-        #         self.get_logger().error("  1. Devcontainer was rebuilt with --network=host")
-        #         self.get_logger().error("  2. You are connected to the Tello's WiFi network")
-        #         self.get_logger().error("  3. The drone is powered on and in SDK mode")
-        #     # Don't raise - allow code to continue for testing
-        #     self.get_logger().warning("Continuing despite state access failure...")
-        
-        # input("Press Enter to start pose capture...")
-        # self.publish_velocity_acceleration()
-        # self.start_pose_capture()
-        # Create publishers for velocities and accelerations
-
-        # input("Preparing for takeoff...")
         print("Preparing for takeoff...")
         self.tello.takeoff()
 
-        # input("Move to target?")
-        #self.tello.send_rc_control(0, 20, 0, 20)
         self.create_publishers()
         self.create_subscribers()
-        # print("Initatied publishers and subscribers")
-        # timer_period = 0.1  # seconds
-        # self.timer = self.create_timer(timer_period, self.cmd_vel_callback)
-        #self.tello.land()
     
     def create_subscribers(self):
         self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
@@ -298,13 +245,10 @@ class TelloNode(Node):
     
     def acceleration_callback(self, msg):
         """Callback for acceleration (can be used for more advanced integration if needed)"""
-        # Currently using velocity integration, but acceleration can be used
-        # for double integration or Kalman filtering in the future
         pass
     
     def terminate(self, error):
         self.get_logger().error(str(error))
-        #self.tello.land()
         self.tello.end()
 
 def main(args=None):
